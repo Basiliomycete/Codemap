@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Codemap — مسیر یادگیری برنامه‌نویسی و گیم‌دولوپمنت</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@400;500;600;700&family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0B0E14;
+    --panel:#121722;
+    --panel-2:#161C29;
+    --grid:#1E2534;
+    --text:#E7EAF0;
+    --text-dim:#8A93A6;
+    --cpp:#E8A33D;
+    --cpp-glow:rgba(232,163,61,0.35);
+    --py:#7C9EFF;
+    --py-glow:rgba(124,158,255,0.35);
+    --unity:#4FD1C5;
+    --unity-glow:rgba(79,209,197,0.35);
+    --html:#FF6B4A;
+    --html-glow:rgba(255,107,74,0.35);
+    --done:#7DD87D;
+    --locked:#3A4152;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Vazirmatn','Inter',sans-serif;
+    min-height:100vh;
+    background-image:
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 42px 42px;
+    background-position: -1px -1px;
+  }
+  .en{font-family:'Space Mono', monospace;}
+
+  header{
+    padding:56px 32px 40px;
+    max-width:1100px;
+    margin:0 auto;
+    text-align:center;
+  }
+  .eyebrow{
+    font-family:'Space Mono',monospace;
+    font-size:12px;
+    letter-spacing:0.18em;
+    color:var(--text-dim);
+    text-transform:uppercase;
+    margin-bottom:18px;
+  }
+  h1{
+    font-size:clamp(28px,4.6vw,46px);
+    font-weight:700;
+    line-height:1.35;
+    margin-bottom:16px;
+  }
+  h1 .accent-cpp{color:var(--cpp);}
+  h1 .accent-py{color:var(--py);}
+  h1 .accent-unity{color:var(--unity);}
+  header p{
+    color:var(--text-dim);
+    font-size:16px;
+    max-width:600px;
+    margin:0 auto;
+    line-height:1.9;
+  }
+
+  .legend{
+    display:flex; gap:22px; justify-content:center;
+    margin-top:28px; flex-wrap:wrap;
+  }
+  .legend span{
+    display:inline-flex; align-items:center; gap:8px;
+    font-size:13px; color:var(--text-dim);
+  }
+  .dot{width:9px;height:9px;border-radius:50%;display:inline-block;}
+
+  .toc{
+    max-width:900px; margin:0 auto 50px; padding:0 16px;
+    display:flex; gap:12px; justify-content:center; flex-wrap:wrap;
+  }
+  .toc a{
+    font-size:13px; color:var(--text-dim); text-decoration:none;
+    border:1px solid var(--grid); padding:8px 16px; border-radius:20px;
+    transition:border-color .15s, color .15s;
+  }
+  .toc a:hover{color:var(--text); border-color:var(--text-dim);}
+
+  .board{
+    max-width:1240px;
+    margin:0 auto;
+    padding:0 16px 60px;
+  }
+
+  .track{
+    margin-bottom:60px;
+    scroll-margin-top:24px;
+  }
+  .track-label{
+    display:flex; align-items:center; gap:12px;
+    padding:0 16px 22px;
+  }
+  .track-label .badge{
+    font-family:'Space Mono',monospace;
+    font-size:12px;
+    padding:5px 12px;
+    border-radius:20px;
+    border:1px solid;
+    white-space:nowrap;
+  }
+  .badge.cpp{color:var(--cpp); border-color:var(--cpp);}
+  .badge.py{color:var(--py); border-color:var(--py);}
+  .badge.unity{color:var(--unity); border-color:var(--unity);}
+  .badge.html{color:var(--html); border-color:var(--html);}
+  .track-label h2{font-size:18px; font-weight:600;}
+  .track-label p{font-size:13px; color:var(--text-dim);}
+
+  .rail-wrap{
+    overflow-x:auto;
+    padding:24px 16px 32px;
+    scrollbar-width:thin;
+    scrollbar-color: var(--grid) transparent;
+  }
+  .rail{
+    display:flex;
+    align-items:center;
+    gap:0;
+    min-width:max-content;
+    position:relative;
+  }
+  .node{
+    width:170px;
+    padding:16px 14px;
+    background:var(--panel);
+    border:1px solid var(--grid);
+    border-radius:10px;
+    cursor:pointer;
+    position:relative;
+    transition:transform .15s ease, border-color .15s ease, box-shadow .15s ease;
+    flex-shrink:0;
+  }
+  .node:hover{transform:translateY(-3px);}
+  .node .idx{
+    font-family:'Space Mono',monospace;
+    font-size:11px;
+    color:var(--text-dim);
+    margin-bottom:8px;
+  }
+  .node .title{font-size:14px; font-weight:600; line-height:1.5;}
+  .node.cpp{border-color: color-mix(in srgb, var(--cpp) 45%, var(--grid));}
+  .node.cpp.done{border-color:var(--cpp); box-shadow:0 0 0 1px var(--cpp), 0 0 18px var(--cpp-glow);}
+  .node.py{border-color: color-mix(in srgb, var(--py) 45%, var(--grid));}
+  .node.py.done{border-color:var(--py); box-shadow:0 0 0 1px var(--py), 0 0 18px var(--py-glow);}
+  .node.unity{border-color: color-mix(in srgb, var(--unity) 45%, var(--grid));}
+  .node.unity.done{border-color:var(--unity); box-shadow:0 0 0 1px var(--unity), 0 0 18px var(--unity-glow);}
+  .node.html{border-color: color-mix(in srgb, var(--html) 45%, var(--grid));}
+  .node.html.done{border-color:var(--html); box-shadow:0 0 0 1px var(--html), 0 0 18px var(--html-glow);}
+  .node .check{
+    position:absolute; top:10px; left:10px;
+    width:16px;height:16px;border-radius:50%;
+    border:1.5px solid var(--text-dim);
+    display:flex; align-items:center; justify-content:center;
+    font-size:10px; color:transparent;
+  }
+  .node.done .check{
+    border-color:var(--done); color:var(--done); background:rgba(125,216,125,0.12);
+  }
+
+  .connector{
+    width:40px; height:2px; flex-shrink:0; position:relative;
+    background:var(--grid);
+  }
+  .connector.done-c::before{content:'';position:absolute; inset:0; background:linear-gradient(90deg, var(--cpp), transparent);}
+  .connector.done-p::before{content:'';position:absolute; inset:0; background:linear-gradient(90deg, var(--py), transparent);}
+  .connector.done-u::before{content:'';position:absolute; inset:0; background:linear-gradient(90deg, var(--unity), transparent);}
+  .connector.done-h::before{content:'';position:absolute; inset:0; background:linear-gradient(90deg, var(--html), transparent);}
+
+  .branch-wrap{
+    display:flex; flex-direction:column; gap:10px; flex-shrink:0;
+    position:relative; margin-inline-start:8px;
+  }
+  .branch-wrap::before{
+    content:''; position:absolute; right:-28px; top:0; bottom:0; width:2px;
+    background:var(--grid);
+  }
+  .branch-wrap .node{width:154px;}
+  .branch-tag{
+    font-family:'Space Mono',monospace; font-size:9px; color:var(--text-dim);
+    position:absolute; top:-18px; right:0;
+  }
+
+  /* detail panel */
+  .overlay{
+    position:fixed; inset:0; background:rgba(5,7,11,0.65);
+    display:none; align-items:center; justify-content:center;
+    z-index:50; padding:20px;
+  }
+  .overlay.open{display:flex;}
+  .panel{
+    background:var(--panel-2);
+    border:1px solid var(--grid);
+    border-radius:14px;
+    max-width:520px; width:100%;
+    padding:28px;
+    max-height:88vh; overflow-y:auto;
+  }
+  .panel .ptrack{
+    font-family:'Space Mono',monospace; font-size:11px;
+    letter-spacing:0.1em; text-transform:uppercase; margin-bottom:10px;
+  }
+  .panel h3{font-size:21px; margin-bottom:14px; font-weight:700;}
+  .panel .desc{color:var(--text-dim); font-size:14px; line-height:1.9; margin-bottom:20px;}
+  .panel .block{margin-bottom:18px;}
+  .panel .block h4{font-size:12px; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:8px;}
+  .panel .block ul{list-style:none;}
+  .panel .block li{
+    font-size:13.5px; padding:8px 0; border-bottom:1px solid var(--grid);
+    display:flex; justify-content:space-between; align-items:center; gap:10px;
+  }
+  .panel .block li:last-child{border-bottom:none;}
+  .panel .block li .tags{display:flex; gap:6px; flex-shrink:0;}
+  .panel .block li span.tag{
+    font-family:'Space Mono',monospace; font-size:9.5px; color:var(--text-dim);
+    white-space:nowrap; border:1px solid var(--grid); padding:2px 7px; border-radius:10px;
+  }
+  .panel .project-box{
+    background:var(--panel); border:1px dashed var(--grid); border-radius:8px;
+    padding:14px; font-size:13.5px; color:var(--text); line-height:1.8;
+  }
+  .panel .actions{display:flex; gap:10px; margin-top:22px;}
+  .panel button{
+    font-family:inherit; font-size:13.5px; font-weight:600;
+    padding:10px 16px; border-radius:8px; border:none; cursor:pointer;
+  }
+  .btn-done{background:var(--text); color:var(--bg);}
+  .btn-close{background:transparent; color:var(--text-dim); border:1px solid var(--grid) !important;}
+
+  footer{
+    text-align:center; padding:36px 16px 60px;
+    color:var(--text-dim); font-size:12.5px;
+  }
+</style>
+</head>
+<body>
+
+<!-- برای تغییر عنوان اصلی و توضیح زیرش، همین‌جا متن رو عوض کن -->
+<header>
+  <div class="eyebrow en">CODEMAP</div>
+  <h1>مسیر <span class="accent-cpp">C++</span>، <span class="accent-py">Python</span>، <span class="accent-unity">Unity</span> و <span style="color:var(--html)">HTML</span>،<br>از صفر تا حرفه‌ای</h1>
+  <p>اینجا به‌جای یه چک‌لیست خشک، یه نقشه‌ی زنده ساختم. برای هر مرحله چند منبع خوب گذاشتم (کتاب، یوتیوب و وب‌سایت، هم فارسی هم انگلیسی)، یه پروژه‌ی واقعی برای تمرین کردن، و یه معیار ساده که خودت بفهمی کِی وقتشه بری سراغ قدم بعدی.</p>
+  <div class="legend">
+    <span><i class="dot" style="background:var(--cpp)"></i>مسیر C++</span>
+    <span><i class="dot" style="background:var(--py)"></i>مسیر Python</span>
+    <span><i class="dot" style="background:var(--unity)"></i>مسیر Unity</span>
+    <span><i class="dot" style="background:var(--html)"></i>مسیر HTML</span>
+    <span><i class="dot" style="background:var(--done)"></i>تکمیل‌شده</span>
+  </div>
+</header>
+
+<nav class="toc">
+  <a href="#track-cpp">مسیر C++</a>
+  <a href="#track-py">مسیر Python</a>
+  <a href="#track-unity">مسیر Unity</a>
+  <a href="#track-html">مسیر HTML</a>
+</nav>
+
+<div class="board">
+
+  <div class="track" id="track-cpp">
+    <div class="track-label">
+      <span class="badge cpp en">TRACK 01</span>
+      <div>
+        <h2>زبان C++</h2>
+        <p>از سینتکس پایه تا سیستم‌های کارآمد و concurrency</p>
+      </div>
+    </div>
+    <div class="rail-wrap"><div class="rail" id="rail-cpp"></div></div>
+  </div>
+
+  <div class="track" id="track-py">
+    <div class="track-label">
+      <span class="badge py en">TRACK 02</span>
+      <div>
+        <h2>زبان Python</h2>
+        <p>از مبانی تا تخصص در وب یا داده، با دو شاخه‌ی انتخابی</p>
+      </div>
+    </div>
+    <div class="rail-wrap"><div class="rail" id="rail-py"></div></div>
+  </div>
+
+  <div class="track" id="track-unity">
+    <div class="track-label">
+      <span class="badge unity en">TRACK 03</span>
+      <div>
+        <h2>گیم‌دولوپمنت با Unity</h2>
+        <p>از ادیتور و C# تا انتشار، با دو شاخه‌ی تخصصی</p>
+      </div>
+    </div>
+    <div class="rail-wrap"><div class="rail" id="rail-unity"></div></div>
+  </div>
+
+  <div class="track" id="track-html">
+    <div class="track-label">
+      <span class="badge html en">TRACK 04</span>
+      <div>
+        <h2>HTML — از صفر تا صد</h2>
+        <p>از ساختار پایه‌ی صفحه تا HTML معنایی و انتشار روی وب</p>
+      </div>
+    </div>
+    <div class="rail-wrap"><div class="rail" id="rail-html"></div></div>
+  </div>
+
+</div>
+
+
+<div class="overlay" id="overlay"><div class="panel" id="panel"></div></div>
+
+<script>
+/* ====================================================================
+   راهنمای ویرایش متن سایت — همه‌ی محتوا همینجاست، نیازی به دونستن
+   برنامه‌نویسی نیست، فقط رشته‌های داخل گیومه رو عوض کن.
+
+   هر «نود» یه آبجکت با این ساختاره:
+   {
+     id:      'یه شناسه‌ی منحصربه‌فرد — این رو تغییر نده',
+     title:   'عنوانی که روی کارت نمایش داده می‌شه',
+     desc:    'توضیح کوتاه یک/دو خطی که بالای پنل جزئیات میاد',
+     resources: [
+       ['عنوان منبع', 'نوع (کتاب/یوتیوب/وبسایت)', 'زبان (فارسی/EN)'],
+       ... می‌تونی هر چند تا آیتم که خواستی اضافه یا کم کنی
+     ],
+     project: 'توضیح پروژه‌ی پیشنهادی این مرحله',
+     ready:   'معیاری که نشون می‌ده کاربر آماده‌ی قدم بعدیه'
+   }
+
+   برای اضافه‌کردن یه نود جدید به یه مسیر: کافیه یه آبجکت جدید با
+   همین ساختار به آرایه‌ی مربوطه اضافه کنی (با کاما جدا کن).
+   برای حذف یه نود: کل آبجکتش رو (بین { و } با کاماش) پاک کن.
+
+   چهار آرایه‌ی اصلی این‌هان:
+   - cppNodes   → مسیر C++ (خطی، بدون شاخه)
+   - pyMain / pyBranch / pyFinal → مسیر Python (شاخه‌دار)
+   - unityMain / unityBranch / unityFinal → مسیر Unity (شاخه‌دار)
+   ==================================================================== */
+
+/* ---------- مسیر C++ ---------- */
+const cppNodes = [
+  {id:'c1', title:'سینتکس و راه‌اندازی', desc:'متغیرها، انواع داده، کنترل جریان، و آشنایی با کامپایلر و فرآیند build.',
+   resources:[['learncpp.com','وبسایت','EN'],['freeCodeCamp — C++ Full Course','یوتیوب','EN'],['کتاب C++ Primer — Lippman','کتاب','EN'],['کتاب C++ How to Program — Deitel','کتاب','EN'],['گیت.آی‌آر (git.ir)','وبسایت','فارسی']],
+   project:'یک برنامه‌ی محاسبه‌گر خط‌فرمانی بساز که چهار عمل اصلی رو با ورودی کاربر انجام بده.',
+   ready:'بدون نگاه به منبع می‌تونی یک برنامه‌ی ساده با شرط و حلقه بنویسی و کامپایلش کنی.'},
+  {id:'c2', title:'توابع و مبانی حافظه', desc:'stack در برابر heap، پوینترها، پاس‌دادن با مرجع، و آرایه‌ها.',
+   resources:[['learncpp.com — Pointers','وبسایت','EN'],['The Cherno — Pointers in C++','یوتیوب','EN'],['کتاب C++ Primer','کتاب','EN'],['دانلودلی','وبسایت','فارسی']],
+   project:'یک لینک‌لیست ساده (singly linked list) از صفر با پوینتر پیاده کن.',
+   ready:'می‌تونی توضیح بدی چرا یک پوینتر dangling خطرناکه و چطور جلوش رو بگیری.'},
+  {id:'c3', title:'مبانی OOP', desc:'کلاس‌ها، ارث‌بری، پلی‌مورفیسم، و انکپسولیشن.',
+   resources:[['learncpp.com — OOP','وبسایت','EN'],['The Cherno — OOP in C++','یوتیوب','EN'],['کتاب C++ Primer','کتاب','EN'],['کتاب C++ Programming — D.S. Malik','کتاب','EN'],['تاپ‌لرن','وبسایت','فارسی']],
+   project:'یک سیستم مدیریت کتابخانه با کلاس‌های Book و Member و ارث‌بری برای انواع عضو بساز.',
+   ready:'می‌تونی یک سلسله‌مراتب کلاس با متد virtual طراحی کنی و دلیلش رو توضیح بدی.'},
+  {id:'c4', title:'STL و کانتینرها', desc:'vector، map، set، الگوریتم‌های استاندارد، و iteratorها.',
+   resources:[['cppreference.com','وبسایت','EN'],['The Cherno — STL Series','یوتیوب','EN'],['کتاب Effective STL — Scott Meyers','کتاب','EN'],['سبزلرن','وبسایت','فارسی']],
+   project:'یک ابزار تحلیل متن بساز که با map فراوانی کلمات یک فایل رو بشماره.',
+   ready:'به‌جای پیاده‌سازی دستی ساختار داده، اول سراغ STL می‌ری و می‌دونی کِی مناسبه.'},
+  {id:'c5', title:'مدیریت حافظه', desc:'RAII، smart pointerها (unique_ptr، shared_ptr)، و new/delete دستی.',
+   resources:[['learncpp.com — Smart Pointers','وبسایت','EN'],['CppCon — RAII Talks','یوتیوب','EN'],['کتاب Effective Modern C++','کتاب','EN'],['گیت.آی‌آر (git.ir)','وبسایت','فارسی']],
+   project:'یک resource manager بساز که فایل یا حافظه رو با RAII به‌صورت خودکار آزاد کنه.',
+   ready:'در کدت دیگه new/delete دستی خام نمی‌بینی مگر جای خیلی خاص.'},
+  {id:'c6', title:'Modern C++ و Move Semantics', desc:'rvalue reference، move constructor، و ویژگی‌های C++11 تا 20.',
+   resources:[['کتاب Effective Modern C++ — Scott Meyers','کتاب','EN'],['cppreference — Move Semantics','وبسایت','EN'],['CppCon — Move Semantics Talks','یوتیوب','EN'],['دانلودلی','وبسایت','فارسی']],
+   project:'یک کلاس بزرگ (مثل یک بافر تصویر) رو با move constructor بهینه کن و تفاوت سرعت رو بسنج.',
+   ready:'می‌تونی توضیح بدی move چرا از copy سریع‌تره و کجا واقعاً فرق می‌کنه.'},
+  {id:'c7', title:'Template و Generic Programming', desc:'function/class templateها و مقدمه‌ای بر metaprogramming.',
+   resources:[['learncpp.com — Templates','وبسایت','EN'],['کتاب C++ Templates: The Complete Guide','کتاب','EN'],['The Cherno — Templates','یوتیوب','EN'],['تاپ‌لرن','وبسایت','فارسی']],
+   project:'یک container عمومی مثل Stack<T> بنویس که با هر نوع داده کار کنه.',
+   ready:'می‌تونی یک تابع generic بنویسی که برای چند نوع مختلف بدون تکرار کد کار کنه.'},
+  {id:'c8', title:'Concurrency', desc:'threadها، mutex، race condition، و برنامه‌نویسی async.',
+   resources:[['کتاب C++ Concurrency in Action — A. Williams','کتاب','EN'],['CppCon — Concurrency Talks','یوتیوب','EN'],['cppreference — Thread Library','وبسایت','EN'],['تاپ‌لرن','وبسایت','فارسی']],
+   project:'یک دانلودر چندنخی بساز که چند فایل رو هم‌زمان با thread جدا دانلود کنه.',
+   ready:'می‌تونی یک race condition رو تشخیص بدی و با mutex یا atomic حلش کنی.'},
+  {id:'c9', title:'Performance و سیستم', desc:'cache-friendly design، پروفایلینگ، و ابزارهای build مثل CMake.',
+   resources:[['مستندات رسمی CMake','وبسایت','EN'],['CppCon — Performance Talks','یوتیوب','EN'],['کتاب Optimized C++ — Kurt Guntheroth','کتاب','EN'],['دانلودلی','وبسایت','فارسی']],
+   project:'یک پروژه‌ی موجود رو با CMake سازمان‌دهی کن و با پروفایلر گلوگاه سرعتش رو پیدا کن.',
+   ready:'آماده‌ای — این سطح یعنی می‌تونی روی یک پروژه‌ی واقعی C++ به‌صورت حرفه‌ای مشارکت کنی.'}
+];
+
+/* ---------- مسیر Python ---------- */
+/* pyMain: نودهای اصلی خطی | pyBranch: دو شاخه‌ی انتخابی موازی |
+   pyFinal: نود پایانی بعد از شاخه‌ها */
+const pyMain = [
+  {id:'p1', title:'سینتکس و مبانی', desc:'متغیرها، انواع داده، شرط و حلقه، و اجرای اولین اسکریپت.',
+   resources:[['مستندات رسمی Python','وبسایت','EN'],['Corey Schafer — Python Basics','یوتیوب','EN'],['کتاب Automate the Boring Stuff — Al Sweigart','کتاب','EN'],['گیت.آی‌آر (git.ir)','وبسایت','فارسی']],
+   project:'یک بازی حدس عدد بساز که با ورودی کاربر تعامل کنه.',
+   ready:'می‌تونی یک اسکریپت ساده با شرط و حلقه بدون کمک بنویسی.'},
+  {id:'p2', title:'توابع و ساختارهای داده', desc:'list، dict، tuple، set، و تعریف توابع با آرگومان‌های پیش‌فرض.',
+   resources:[['Real Python — Data Structures','وبسایت','EN'],['Corey Schafer — Lists/Dicts/Tuples','یوتیوب','EN'],['کتاب Automate the Boring Stuff','کتاب','EN'],['سبزلرن','وبسایت','فارسی']],
+   project:'یک دفترچه‌ی تلفن ساده با dict بساز که امکان افزودن، حذف و جست‌وجو داشته باشه.',
+   ready:'می‌دونی کِی از list، کِی از dict و کِی از set استفاده کنی و چرا.'},
+  {id:'p3', title:'OOP در پایتون', desc:'کلاس‌ها، ارث‌بری، و متدهای ویژه (dunder methods).',
+   resources:[['Real Python — OOP in Python','وبسایت','EN'],['Corey Schafer — OOP Series','یوتیوب','EN'],['کتاب Python Crash Course — Eric Matthes','کتاب','EN'],['تاپ‌لرن','وبسایت','فارسی']],
+   project:'یک سیستم ساده‌ی بانکی با کلاس Account بساز که واریز، برداشت و ارث‌بری برای انواع حساب داشته باشه.',
+   ready:'می‌تونی یک کلاس با متدهای __init__ و __str__ به‌درستی طراحی کنی.'},
+  {id:'p4', title:'مدیریت خطا و فایل', desc:'try/except، کار با فایل، و context managerها (with).',
+   resources:[['Real Python — Exceptions & File I/O','وبسایت','EN'],['Corey Schafer — Try/Except','یوتیوب','EN'],['کتاب Python Crash Course','کتاب','EN'],['سبزلرن','وبسایت','فارسی']],
+   project:'یک برنامه‌ی خواندن و پردازش فایل CSV بساز که خطاهای احتمالی رو مدیریت کنه.',
+   ready:'می‌تونی به‌جای برنامه که crash می‌کنه، خطاها رو با try/except درست مدیریت کنی.'},
+  {id:'p5', title:'کتابخانه‌ی استاندارد و ابزارها', desc:'pip، virtual environment، و ماژول‌هایی مثل itertools و collections.',
+   resources:[['مستندات رسمی pip / venv','وبسایت','EN'],['Corey Schafer — Virtual Environments','یوتیوب','EN'],['Real Python — Standard Library','وبسایت','EN'],['گیت.آی‌آر (git.ir)','وبسایت','فارسی']],
+   project:'یک پروژه رو در یک virtual environment جدا راه‌اندازی کن و یک requirements.txt بسازی.',
+   ready:'برای هر پروژه‌ی جدید به‌صورت خودکار venv می‌سازی و وابستگی‌ها رو مدیریت می‌کنی.'},
+  {id:'p6', title:'OOP پیشرفته و الگوها', desc:'decoratorها، generatorها، و آشنایی با design patternهای رایج.',
+   resources:[['Real Python — Decorators & Generators','وبسایت','EN'],['Corey Schafer — Decorators','یوتیوب','EN'],['کتاب Fluent Python — Luciano Ramalho','کتاب','EN'],['سبزلرن','وبسایت','فارسی']],
+   project:'یک decorator بساز که زمان اجرای هر تابع رو اندازه بگیره و لاگ کنه.',
+   ready:'می‌تونی یک generator برای پردازش داده‌ی حجیم بدون پر کردن حافظه بنویسی.'},
+  {id:'p7', title:'تست‌نویسی و کیفیت کد', desc:'pytest، linting، و type hintها برای کد قابل‌اعتماد.',
+   resources:[['مستندات pytest','وبسایت','EN'],['Corey Schafer — Unit Testing','یوتیوب','EN'],['Real Python — Type Hints','وبسایت','EN'],['گیت.آی‌آر (git.ir)','وبسایت','فارسی']],
+   project:'برای یکی از پروژه‌های قبلی‌ت تست‌های واحد با pytest بنویس.',
+   ready:'برای هر تابع مهم، رفلکس اولت نوشتن تسته، نه فقط تست دستی.'}
+];
+
+const pyBranch = [
+  {id:'pb1', title:'توسعه‌ی وب (Flask/Django)', desc:'ساخت API و اپ وب با فریم‌ورک‌های پایتونی.',
+   resources:[['مستندات Flask','وبسایت','EN'],['Corey Schafer — Flask Series','یوتیوب','EN'],['کتاب Django for Beginners — W. Vincent','کتاب','EN'],['دانلودلی','وبسایت','فارسی']],
+   project:'یک API ساده با Flask بساز که CRUD روی یک منبع (مثلاً Task) انجام بده.',
+   ready:'می‌تونی یک endpoint امن با validation ورودی طراحی کنی.'},
+  {id:'pb2', title:'داده و یادگیری ماشین', desc:'pandas، numpy، و مقدمه‌ای بر تحلیل داده.',
+   resources:[['مستندات pandas','وبسایت','EN'],['Corey Schafer — Pandas Series','یوتیوب','EN'],['کتاب Python for Data Analysis — Wes McKinney','کتاب','EN'],['دانلودلی','وبسایت','فارسی']],
+   project:'یک دیتاست واقعی رو با pandas تمیز کن و چند نمودار تحلیلی ازش بگیر.',
+   ready:'می‌تونی یک دیتاست خام رو تا آماده‌شدن برای تحلیل یا مدل، پردازش کنی.'}
+];
+
+const pyFinal = [
+  {id:'p8', title:'Async و Concurrency', desc:'asyncio، threading، و multiprocessing برای کارهای هم‌زمان.',
+   resources:[['مستندات asyncio','وبسایت','EN'],['Real Python — Async IO','وبسایت','EN'],['کتاب Using Asyncio in Python — C. Hattingh','کتاب','EN'],['گیت.آی‌آر (git.ir)','وبسایت','فارسی']],
+   project:'یک اسکرِیپر async بساز که چند صفحه‌ی وب رو هم‌زمان و بدون بلاک‌شدن دریافت کنه.',
+   ready:'آماده‌ای — یعنی می‌تونی تصمیم بگیری یک مسئله رو با async، thread یا process حل کنی.'}
+];
+
+/* ---------- مسیر Unity ---------- */
+/* unityMain: نودهای اصلی خطی | unityBranch: دو شاخه‌ی انتخابی موازی |
+   unityFinal: نود پایانی بعد از شاخه‌ها */
+const unityMain = [
+  {id:'u1', title:'ادیتور و C# پایه', desc:'محیط Unity، مفهوم MonoBehaviour، و سینتکس پایه‌ی C#.',
+   resources:[['Unity Learn — Essentials','وبسایت','EN'],['Brackeys — Beginner Series','یوتیوب','EN'],['مستندات رسمی C#','وبسایت','EN'],['Iran CGart','یوتیوب','فارسی'],['تاپ‌لرن','وبسایت','فارسی']],
+   project:'یک صحنه بساز که با اسکریپت رنگ یک شیء رو با کلیک تغییر بده.',
+   ready:'می‌تونی یک اسکریپت C# بنویسی که به یک رویداد ساده در صحنه واکنش نشون بده.'},
+  {id:'u2', title:'GameObject و کامپوننت‌ها', desc:'transform، prefab، و ترکیب صحنه از قطعات قابل‌استفاده مجدد.',
+   resources:[['Unity Learn — Prefabs','وبسایت','EN'],['Brackeys — Prefabs','یوتیوب','EN'],['کتاب Unity in Action — Joseph Hocking','کتاب','EN'],['Iran CGart','یوتیوب','فارسی']],
+   project:'یک سیستم spawn بساز که prefabهای دشمن رو به‌صورت تصادفی در صحنه قرار بده.',
+   ready:'می‌تونی صحنه رو با prefab و کامپوننت‌های قابل‌استفاده‌ی مجدد بسازی، نه اشیاء تکی.'},
+  {id:'u3', title:'فیزیک و برخورد', desc:'Rigidbody، Colliderها، و Raycasting.',
+   resources:[['Unity Learn — Physics','وبسایت','EN'],['Brackeys — Physics & Collision','یوتیوب','EN'],['مستندات Unity Physics','وبسایت','EN'],['Iran CGart','یوتیوب','فارسی']],
+   project:'یک مکانیزم پرش و برخورد با زمین برای یک کاراکتر ساده پیاده کن.',
+   ready:'می‌تونی تفاوت trigger و collision رو توضیح بدی و درست ازشون استفاده کنی.'},
+  {id:'u4', title:'ورودی و کنترل بازیکن', desc:'Input System جدید و ساخت character controller.',
+   resources:[['مستندات Unity Input System','وبسایت','EN'],['Brackeys — Player Controller','یوتیوب','EN'],['کتاب Unity in Action','کتاب','EN'],['Iran CGart','یوتیوب','فارسی']],
+   project:'حرکت و پرش یک کاراکتر ۲بعدی یا ۳بعدی رو با Input System پیاده کن.',
+   ready:'کنترل بازیکنت روی چند دستگاه ورودی مختلف (کیبورد/گیم‌پد) درست کار می‌کنه.'},
+  {id:'u5', title:'انیمیشن و State Machine', desc:'Animator Controller، blend treeها، و انتقال بین حالت‌ها.',
+   resources:[['Unity Learn — Animation','وبسایت','EN'],['Brackeys — Animator','یوتیوب','EN'],['مستندات Unity Animation','وبسایت','EN'],['Iran CGart','یوتیوب','فارسی']],
+   project:'یک state machine برای حالت‌های idle/run/jump کاراکترت بساز.',
+   ready:'می‌تونی یک ماشین‌حالت انیمیشن رو بدون گیر کردن بین ترنزیشن‌ها طراحی کنی.'},
+  {id:'u6', title:'UI و سیستم‌های بازی', desc:'Canvas، ScriptableObjectها، و سیستم‌هایی مثل اینونتوری یا سلامتی.',
+   resources:[['Unity Learn — UI Toolkit','وبسایت','EN'],['Brackeys — UI Series','یوتیوب','EN'],['مستندات ScriptableObject','وبسایت','EN'],['Iran CGart','یوتیوب','فارسی']],
+   project:'یک سیستم اینونتوری ساده با ScriptableObject برای آیتم‌ها بساز.',
+   ready:'می‌تونی داده‌های بازی (آیتم، استت) رو با ScriptableObject از منطق جدا کنی.'}
+];
+
+const unityBranch = [
+  {id:'ub1', title:'شیدر و رندرینگ', desc:'URP/HDRP و Shader Graph برای جلوه‌های بصری سفارشی.',
+   resources:[['مستندات Shader Graph','وبسایت','EN'],['Sebastian Lague — Shader Series','یوتیوب','EN'],['کتاب The Book of Shaders','وبسایت/کتاب','EN'],['Iran CGart','یوتیوب','فارسی']],
+   project:'یک شیدر ساده‌ی toon shading با Shader Graph بساز.',
+   ready:'می‌تونی یک shader بصری با Shader Graph بدون کد بنویسی و روی متریال اعمال کنی.'},
+  {id:'ub2', title:'مالتی‌پلیر و شبکه', desc:'Netcode for GameObjects و همگام‌سازی وضعیت بین بازیکن‌ها.',
+   resources:[['مستندات Unity Netcode','وبسایت','EN'],['Code Monkey — Multiplayer Series','یوتیوب','EN'],['کتاب Multiplayer Game Programming — J. Glazer','کتاب','EN'],['Iran CGart','یوتیوب','فارسی']],
+   project:'یک صحنه‌ی دو نفره بساز که حرکت هر بازیکن برای دیگری sync بشه.',
+   ready:'می‌تونی تفاوت client-authoritative و server-authoritative رو توضیح بدی.'}
+];
+
+const unityFinal = [
+  {id:'u7', title:'انتشار و بهینه‌سازی', desc:'export برای پلتفرم‌های مختلف، پروفایلینگ، و کاهش حجم build.',
+   resources:[['Unity Learn — Optimization','وبسایت','EN'],['مستندات Unity Profiler','وبسایت','EN'],['کتاب Unity in Action','کتاب','EN'],['Iran CGart','یوتیوب','فارسی'],['دانلودلی','وبسایت','فارسی']],
+   project:'بازی فاز اولت رو برای وب یا موبایل export کن و با Profiler گلوگاه پیدا کن.',
+   ready:'آماده‌ای — یعنی می‌تونی یک بازی کوچیک رو از صفر تا انتشار واقعی ببری.'}
+];
+
+/* ---------- مسیر HTML (از صفر تا صد) ---------- */
+/* htmlNodes: مسیر خطی، بدون شاخه */
+const htmlNodes = [
+  {id:'h1', title:'ساختار پایه‌ی HTML', desc:'تگ‌ها، عنصرها، ساختار سند (doctype، head، body) و اولین صفحه.',
+   resources:[['MDN — HTML Basics','وبسایت','EN'],['freeCodeCamp — HTML Full Course','یوتیوب','EN'],['کتاب HTML and CSS — Jon Duckett','کتاب','EN'],['سبزلرن — آموزش HTML','وبسایت','فارسی']],
+   project:'یک صفحه‌ی رزومه‌ی شخصی ساده فقط با HTML خام بساز.',
+   ready:'می‌تونی یک سند HTML معتبر با ساختار درست از صفر بنویسی.'},
+  {id:'h2', title:'متن، لیست و تصاویر', desc:'تیترها، پاراگراف، لیست‌های مرتب و نامرتب، و جای‌گذاری تصویر.',
+   resources:[['MDN — Text Fundamentals','وبسایت','EN'],['freeCodeCamp — HTML Elements','یوتیوب','EN'],['کتاب HTML and CSS — Jon Duckett','کتاب','EN'],['تاپ‌لرن — آموزش HTML','وبسایت','فارسی']],
+   project:'یک پست وبلاگی نمونه با تیتر، پاراگراف، لیست و چند تصویر بساز.',
+   ready:'می‌دونی کِی از تگ‌های تیتر (h1-h6) و کِی از پاراگراف درست استفاده کنی.'},
+  {id:'h3', title:'لینک‌ها و ناوبری', desc:'تگ anchor، لینک داخلی/خارجی، و ساخت منوی ناوبری ساده.',
+   resources:[['MDN — Links','وبسایت','EN'],['W3Schools — HTML Links','وبسایت','EN'],['کتاب HTML and CSS — Jon Duckett','کتاب','EN'],['دانلودلی — دوره HTML','وبسایت','فارسی']],
+   project:'یک سایت سه‌صفحه‌ای بساز (خانه/درباره/تماس) که با منو به هم لینک بشن.',
+   ready:'می‌تونی بین چند صفحه لینک داخلی و خارجی درست بسازی.'},
+  {id:'h4', title:'جدول‌ها و فرم‌ها', desc:'ساخت جدول داده، و عنصرهای فرم مثل input، select و textarea.',
+   resources:[['MDN — Forms','وبسایت','EN'],['freeCodeCamp — HTML Forms','یوتیوب','EN'],['کتاب HTML and CSS — Jon Duckett','کتاب','EN'],['سبزلرن — آموزش فرم در HTML','وبسایت','فارسی']],
+   project:'یک فرم ثبت‌نام با انواع input (متن، ایمیل، رادیو، چک‌باکس) بساز.',
+   ready:'می‌تونی یک فرم کامل با label و نوع input درست برای هر فیلد طراحی کنی.'},
+  {id:'h5', title:'HTML معنایی (Semantic)', desc:'تگ‌هایی مثل header، nav، main، article، aside و مبانی دسترسی‌پذیری (accessibility).',
+   resources:[['MDN — Semantic HTML','وبسایت','EN'],['web.dev — Accessibility Basics','وبسایت','EN'],['کتاب HTML and CSS — Jon Duckett','کتاب','EN'],['تاپ‌لرن — HTML معنایی','وبسایت','فارسی']],
+   project:'صفحه‌ی رزومه‌ی قبلی‌ت رو با تگ‌های معنایی بازنویسی کن به‌جای div خام.',
+   ready:'کدت رو با tagهای معنایی می‌سازی، نه یه عالمه div بی‌معنی.'},
+  {id:'h6', title:'متادیتا و اتصال به CSS/JS', desc:'تگ‌های head، متا تگ‌ها برای SEO، و لینک‌کردن فایل CSS و JS خارجی.',
+   resources:[['MDN — The Head Metadata','وبسایت','EN'],['web.dev — SEO Basics','وبسایت','EN'],['freeCodeCamp — HTML Head','یوتیوب','EN'],['دانلودلی — آموزش سئو پایه','وبسایت','فارسی']],
+   project:'به صفحه‌ی قبلی یه فایل CSS و یه فایل JS خارجی وصل کن و متا تگ‌های اصلی رو اضافه کن.',
+   ready:'می‌تونی یک صفحه‌ی HTML رو درست به CSS و JS خارجی وصل کنی و متای پایه‌اش رو بزنی.'},
+  {id:'h7', title:'ابزارها، Git و انتشار', desc:'ابزارهای توسعه (VS Code، DevTools)، مبانی Git، و انتشار صفحه با GitHub Pages.',
+   resources:[['مستندات GitHub Pages','وبسایت','EN'],['کتاب Pro Git — Scott Chacon (رایگان)','کتاب','EN'],['freeCodeCamp — Git & GitHub','یوتیوب','EN'],['git.ir — آموزش گیت فارسی','وبسایت','فارسی']],
+   project:'صفحه‌ی نهایی‌ت رو با Git commit کن و روی GitHub Pages منتشرش کن.',
+   ready:'آماده‌ای — یعنی می‌تونی یک صفحه‌ی HTML رو از صفر بسازی، ورژن‌بندی کنی، و لایو ببری.'}
+];
+
+let progress = {};
+
+function nodeHTML(n, trackClass){
+  return `<div class="node ${trackClass}" data-id="${n.id}">
+    <div class="check">✓</div>
+    <div class="title">${n.title}</div>
+  </div>`;
+}
+
+function renderLinear(containerId, nodes, trackClass, connClass){
+  const el = document.getElementById(containerId);
+  let html = '';
+  nodes.forEach((n,i) => {
+    if(i>0) html += `<div class="connector ${connClass}"></div>`;
+    html += nodeHTML(n, trackClass);
+  });
+  el.innerHTML = html;
+}
+
+renderLinear('rail-cpp', cppNodes, 'cpp', 'done-c');
+renderLinear('rail-html', htmlNodes, 'html', 'done-h');
+
+// python rail: main -> branch (web/data) -> final
+const pyRail = document.getElementById('rail-py');
+let pHtml = '';
+pyMain.forEach((n,i) => {
+  if(i>0) pHtml += `<div class="connector done-p"></div>`;
+  pHtml += nodeHTML(n, 'py');
+});
+pHtml += `<div class="connector done-p"></div>`;
+pHtml += `<div class="branch-wrap">${pyBranch.map(n=>nodeHTML(n,'py')).join('')}</div>`;
+pHtml += `<div class="connector done-p"></div>`;
+pHtml += nodeHTML(pyFinal[0], 'py');
+pyRail.innerHTML = pHtml;
+
+// unity rail: main -> branch (shader/multiplayer) -> final
+const unityRail = document.getElementById('rail-unity');
+let uHtml = '';
+unityMain.forEach((n,i) => {
+  if(i>0) uHtml += `<div class="connector done-u"></div>`;
+  uHtml += nodeHTML(n, 'unity');
+});
+uHtml += `<div class="connector done-u"></div>`;
+uHtml += `<div class="branch-wrap">${unityBranch.map(n=>nodeHTML(n,'unity')).join('')}</div>`;
+uHtml += `<div class="connector done-u"></div>`;
+uHtml += nodeHTML(unityFinal[0], 'unity');
+unityRail.innerHTML = uHtml;
+
+const allNodes = {};
+const trackOf = {};
+[...cppNodes].forEach(n => { allNodes[n.id]=n; trackOf[n.id]='cpp'; });
+[...pyMain, ...pyBranch, ...pyFinal].forEach(n => { allNodes[n.id]=n; trackOf[n.id]='py'; });
+[...unityMain, ...unityBranch, ...unityFinal].forEach(n => { allNodes[n.id]=n; trackOf[n.id]='unity'; });
+[...htmlNodes].forEach(n => { allNodes[n.id]=n; trackOf[n.id]='html'; });
+
+const trackMeta = {
+  cpp:{name:'مسیر C++', color:'var(--cpp)'},
+  py:{name:'مسیر Python', color:'var(--py)'},
+  unity:{name:'مسیر Unity', color:'var(--unity)'},
+  html:{name:'مسیر HTML', color:'var(--html)'}
+};
+
+const overlay = document.getElementById('overlay');
+const panel = document.getElementById('panel');
+
+function openPanel(id){
+  const n = allNodes[id];
+  const meta = trackMeta[trackOf[id]];
+  const isDone = !!progress[id];
+  panel.innerHTML = `
+    <div class="ptrack en" style="color:${meta.color}">${meta.name}</div>
+    <h3>${n.title}</h3>
+    <p class="desc">${n.desc}</p>
+    <div class="block">
+      <h4>منابع پیشنهادی</h4>
+      <ul>${n.resources.map(r=>`<li><span>${r[0]}</span><span class="tags"><span class="tag">${r[1]}</span><span class="tag">${r[2]}</span></span></li>`).join('')}</ul>
+    </div>
+    <div class="block">
+      <h4>پروژه‌ی این مرحله</h4>
+      <div class="project-box">${n.project}</div>
+    </div>
+    <div class="block">
+      <h4>کِی آماده‌ی قدم بعدی‌ای</h4>
+      <div class="project-box">${n.ready}</div>
+    </div>
+    <div class="actions">
+      <button class="btn-done" id="toggleDone">${isDone ? 'برداشتن علامت تکمیل' : 'علامت‌گذاری به‌عنوان تکمیل‌شده'}</button>
+      <button class="btn-close" id="closePanel">بستن</button>
+    </div>
+  `;
+  overlay.classList.add('open');
+  document.getElementById('toggleDone').onclick = () => {
+    progress[id] = !progress[id];
+    updateNodeVisual(id);
+    openPanel(id);
+  };
+  document.getElementById('closePanel').onclick = closePanel;
+}
+function closePanel(){ overlay.classList.remove('open'); }
+overlay.addEventListener('click', (e) => { if(e.target === overlay) closePanel(); });
+
+function updateNodeVisual(id){
+  const el = document.querySelector(`.node[data-id="${id}"]`);
+  if(!el) return;
+  el.classList.toggle('done', !!progress[id]);
+}
+
+document.querySelectorAll('.node').forEach(el => {
+  el.addEventListener('click', () => openPanel(el.dataset.id));
+});
+</script>
+</body>
+</html>
